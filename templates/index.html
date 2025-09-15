@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>House Price Predictor</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: url("static/images/bg.png") no-repeat center center/cover;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(14px) saturate(160%);
+      -webkit-backdrop-filter: blur(14px) saturate(160%);
+      border-radius: 18px;
+      padding: 35px;
+      max-width: 880px;
+      width: 100%;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+      color: #f5f8ff;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #4e54c8, #8f94fb);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      color: #fff;
+      margin-right: 16px;
+      font-size: 20px;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .lead {
+      font-size: 13px;
+      opacity: 0.85;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 5px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #f5f8ff;
+    }
+
+    .hint {
+      font-size: 11px;
+      opacity: 0.75;
+    }
+
+    input[type="number"], select {
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.35);
+      color: #fff;
+      font-size: 14px;
+      width: 100%;
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .full {
+      grid-column: span 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .meta {
+      font-size: 12px;
+      color: #dce2f0;
+    }
+
+    .actions {
+      display: flex;
+      gap: 14px;
+    }
+
+    button {
+      padding: 12px 26px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    button[type="submit"] {
+      background: linear-gradient(135deg, #4e54c8, #8f94fb);
+      color: #fff;
+      font-weight: bold;
+      box-shadow: 0 4px 15px rgba(78, 84, 200, 0.5);
+    }
+
+    button[type="submit"]:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(78, 84, 200, 0.6);
+    }
+
+    .secondary {
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
+    }
+
+    .secondary:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .result, .error {
+      margin-top: 20px;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .result {
+      background: rgba(0, 200, 83, 0.2);
+      color: #00e676;
+    }
+
+    .error {
+      background: rgba(244, 67, 54, 0.2);
+      color: #ff5252;
+    }
+
+    footer.metafoot {
+      margin-top: 28px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      text-align: center;
+    }
+
+    footer .code {
+      font-family: monospace;
+      color: #8f94fb;
+    }
+
+    @media (max-width: 600px) {
+      form {
+        grid-template-columns: 1fr;
+      }
+      .full {
+        grid-column: span 1;
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card" role="main" aria-labelledby="title">
+    <header>
+      <div class="logo">HP</div>
+      <div>
+        <h1 id="title">House Price Predictor</h1>
+        <p class="lead">Enter numeric values (Location/Condition/Garage are numeric codes). Predictions powered by your model.</p>
+      </div>
+    </header>
+
+    <form method="POST" action="/" novalidate>
+      <div class="field"><label>Area (sq ft)</label>
+        <input type="number" step="0.01" name="Area" required placeholder="e.g. 1500" value="{{ last_input.Area if last_input and last_input.Area }}">
+      </div>
+      <div class="field"><label>Bedrooms</label>
+        <input type="number" name="Bedrooms" required placeholder="e.g. 3" value="{{ last_input.Bedrooms if last_input and last_input.Bedrooms }}">
+      </div>
+      <div class="field"><label>Bathrooms</label>
+        <input type="number" step="0.5" name="Bathrooms" required placeholder="e.g. 2" value="{{ last_input.Bathrooms if last_input and last_input.Bathrooms }}">
+      </div>
+      <div class="field"><label>Floors</label>
+        <input type="number" name="Floors" required placeholder="e.g. 1" value="{{ last_input.Floors if last_input and last_input.Floors }}">
+      </div>
+      <div class="field"><label>Year Built</label>
+        <input type="number" name="YearBuilt" required placeholder="e.g. 2015" value="{{ last_input.YearBuilt if last_input and last_input.YearBuilt }}">
+      </div>
+      <div class="field"><label>Location <span class="hint">({{ meta.location_codes }})</span></label>
+        <input type="number" name="Location" required placeholder="1-4" value="{{ last_input.Location if last_input and last_input.Location }}">
+      </div>
+      <div class="field"><label>Condition <span class="hint">({{ meta.condition_codes }})</span></label>
+        <input type="number" name="Condition" required placeholder="1-4" value="{{ last_input.Condition if last_input and last_input.Condition }}">
+      </div>
+      <div class="field"><label>Garage <span class="hint">({{ meta.garage_codes }})</span></label>
+        <input type="number" name="Garage" required placeholder="0 or 1" value="{{ last_input.Garage if last_input and last_input.Garage }}">
+      </div>
+
+      <div class="full">
+        <div class="meta">Tip: Enter codes exactly as used during training.</div>
+        <div class="actions">
+          <button type="submit">Predict</button>
+          <button type="reset" class="secondary" onclick="clearResult()">Reset</button>
+        </div>
+      </div>
+    </form>
+
+    {% if prediction %}
+      <div class="result">Predicted Price: <span class="code">{{ prediction }}</span></div>
+    {% endif %}
+    {% if error %}
+      <div class="error">Error: {{ error }}</div>
+    {% endif %}
+
+    <footer class="metafoot">
+      <div>Model input order: <span class="code">Area, Bedrooms, Bathrooms, Floors, YearBuilt, Location, Condition, Garage</span></div>
+      <div>Server: <span class="code">localhost:5000</span></div>
+      <div class="copyright">© Shivraj Singh</div>
+    </footer>
+  </div>
+
+  <script>
+    function clearResult() {
+      setTimeout(() => { window.location.href = "/"; }, 150);
+    }
+  </script>
+</body>
+</html>
